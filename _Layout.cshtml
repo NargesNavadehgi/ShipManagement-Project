@@ -1,0 +1,165 @@
+﻿<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ShipManagement</title>
+
+    <!-- اضافه کردن فونت وزیر -->
+    <link rel="stylesheet" href="https://cdn.fontcdn.ir/Font/Persian/Vazir/Vazir.css">
+
+    <!-- لینک‌های استایل -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <style>
+        /* راست‌چین کردن کامل صفحه با فونت وزیر */
+        body {
+            font-family: 'Vazir', Tahoma, Arial, sans-serif !important;
+            direction: rtl !important;
+            text-align: right !important;
+            line-height: 1.8;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* راست‌چین کردن همه عناصر */
+        .container, .row, .col,
+        .card, .form-control, .btn,
+        .table, .navbar, .dropdown-menu,
+        .list-group, .modal-content {
+            direction: rtl !important;
+            text-align: right !important;
+            font-family: 'Vazir', Tahoma, Arial, sans-serif !important;
+        }
+
+        /* استایل برای منوی ناوبری */
+        .navbar-nav {
+            margin-right: 0 !important;
+        }
+
+        .dropdown-menu {
+            left: auto !important;
+            right: 0 !important;
+            text-align: right;
+        }
+
+        /* بهبود ظاهر منوهای dropdown */
+        .dropdown-item {
+            padding: 0.5rem 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+            .dropdown-item i {
+                margin-left: 0.5rem;
+                width: 20px;
+                text-align: center;
+            }
+
+        /* استایل برای هدر */
+        .navbar-brand {
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+            .navbar-brand i {
+                margin-left: 0.5rem;
+            }
+
+        /* استایل برای منوی فعال */
+        .nav-item.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="fas fa-ship"></i>
+                    سیستم مدیریت کشتی
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">
+                                <i class="fas fa-home"></i>
+                                صفحه اصلی
+                            </a>
+                        </li>
+@*                         <li class="nav-item">
+                            <a class="nav-link" asp-controller="Shipment" asp-action="Create">
+                                <i class="fas fa-plus-circle"></i>
+                                ثبت اطلاعات کشتی
+                            </a>
+                        </li> *@
+@*                         <li class="nav-item">
+                            <a class="nav-link" asp-controller="Shipment" asp-action="Index">
+                                <i class="fas fa-list"></i>
+                                مشاهده اطلاعات ثبت شده
+                            </a>
+                        </li> *@
+@*                         <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="basicDataDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-database"></i>
+                                اطلاعات پایه
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="basicDataDropdown">
+                                <li>
+                                    <a class="dropdown-item" asp-controller="BasicData" asp-action="Ships">
+                                        <i class="fas fa-ship"></i> مدیریت کشتی‌ها
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="BasicData" asp-action="CargoOwners">
+                                        <i class="fas fa-user-tie"></i> مدیریت صاحبان کالا
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="BasicData" asp-action="ShippingAgents">
+                                        <i class="fas fa-building"></i> مدیریت نمایندگان کشتیرانی
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="BasicData" asp-action="CargoTypes">
+                                        <i class="fas fa-box"></i> مدیریت انواع کالا
+                                    </a>
+                                </li>
+                            </ul>
+                        </li> *@
+                    </ul>
+                    <!-- خط مربوط به _LoginPartial حذف شده -->
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2025 - ShipManagement - <a asp-area="" asp-controller="Home" asp-action="Privacy">حریم خصوصی</a>
+        </div>
+    </footer>
+
+    <!-- اسکریپت‌ها -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

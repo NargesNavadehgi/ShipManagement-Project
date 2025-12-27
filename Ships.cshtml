@@ -1,0 +1,241 @@
+﻿@model IEnumerable<ShipManagement.Models.Ship>
+@{
+    ViewData["Title"] = "مدیریت کشتی‌ها";
+    Layout = "_BasicDataLayout";
+}
+
+<head>
+    <!-- ابتدا فونت‌ها -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css" rel="stylesheet">
+
+    <!-- سپس استایل‌های اصلی -->
+    <style>
+        /* استایل‌های اصلی */
+        body {
+            font-family: Vazir, Tahoma, Arial, sans-serif;
+            direction: rtl;
+        }
+
+        .table-container {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+
+        .action-btn {
+            transition: all 0.2s ease-in-out;
+        }
+
+            .action-btn:hover {
+                transform: scale(1.05);
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+
+        /* بهبود ظاهر جدول برای RTL */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: right;
+            padding: 12px 16px;
+        }
+
+        td {
+            padding: 12px 16px;
+            text-align: right;
+        }
+
+        /* انیمیشن برای ردیف‌های جدول */
+        tr {
+            transition: transform 0.2s ease;
+        }
+    </style>
+
+    <!-- اسکریپت‌ها در انتها -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+    <!-- محتوای اصلی صفحه -->
+    <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
+        <div class="max-w-6xl mx-auto">
+            <!-- هدر صفحه -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8 border border-blue-100">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-800 flex items-center">
+                            <i class="fas fa-ship ml-3 text-blue-500"></i>
+                            مدیریت کشتی‌ها
+                        </h1>
+                        <p class="text-gray-600 mt-2">لیست کشتی‌های ثبت شده در سیستم</p>
+                    </div>
+                    <div class="flex space-x-2 space-x-reverse">
+                        <a asp-action="CreateShip" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-lg font-medium transition duration-200 flex items-center">
+                            <i class="fas fa-plus ml-2"></i>
+                            افزودن کشتی جدید
+                        </a>
+                        <div class="bg-blue-100 p-4 rounded-full">
+                            <i class="fas fa-list text-2xl text-blue-600"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- کارت جدول کشتی‌ها -->
+            <div class="bg-white rounded-xl shadow-lg p-6 border border-blue-100">
+                <div class="overflow-x-auto table-container">
+                    <table class="min-w-full bg-white">
+                        <thead class="bg-blue-500 text-white">
+                            <tr>
+                                <th class="px-6 py-4 text-sm font-semibold uppercase tracking-wider">
+                                    <i class="fas fa-ship ml-2"></i>
+                                    نام کشتی
+                                </th>
+                                <th class="px-6 py-4 text-sm font-semibold uppercase tracking-wider">
+                                    <i class="fas fa-globe ml-2"></i>
+                                    کشور
+                                </th>
+                                <th class="px-6 py-4 text-sm font-semibold uppercase tracking-wider">
+                                    <i class="fas fa-weight-hanging ml-2"></i>
+                                    ظرفیت (تن)
+                                </th>
+                                <th class="px-6 py-4 text-sm font-semibold uppercase tracking-wider">
+                                    <i class="fas fa-calendar ml-2"></i>
+                                    سال ساخت
+                                </th>
+                                <th class="px-6 py-4 text-sm font-semibold uppercase tracking-wider">
+                                    <i class="fas fa-cog ml-2"></i>
+                                    عملیات
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            @foreach (var item in Model)
+                            {
+                                <tr class="hover:bg-blue-50 transition duration-150">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="bg-blue-100 p-2 rounded-full">
+                                                <i class="fas fa-ship text-blue-600"></i>
+                                            </div>
+                                            <div class="mr-3">
+                                                <div class="text-sm font-medium text-gray-900">@item.Name</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">@item.Country</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                            @item.Capacity?.ToString("N0")
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        @item.BuildYear
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex space-x-2 space-x-reverse">
+                                            <a asp-action="EditShip" asp-route-id="@item.Id"
+                                               class="text-blue-600 hover:text-blue-900 action-btn bg-blue-50 p-2 rounded-lg">
+                                                <i class="fas fa-edit"></i>
+                                                <span class="mr-1">ویرایش</span>
+                                            </a>
+                                            <a asp-action="DeleteShip" asp-route-id="@item.Id"
+                                               class="text-red-600 hover:text-red-900 action-btn bg-red-50 p-2 rounded-lg">
+                                                <i class="fas fa-trash"></i>
+                                                <span class="mr-1">حذف</span>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- پیام زمانی که هیچ کشتی وجود ندارد -->
+                @if (!Model.Any())
+                {
+                    <div class="text-center py-12">
+                        <div class="bg-blue-50 rounded-full p-4 inline-flex mb-4">
+                            <i class="fas fa-ship text-blue-500 text-3xl"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">هیچ کشتی ثبت نشده است</h3>
+                        <p class="text-gray-500 mb-4">برای شروع، اولین کشتی را به سیستم اضافه کنید.</p>
+                        <a asp-action="CreateShip" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg inline-flex items-center">
+                            <i class="fas fa-plus ml-2"></i>
+                            افزودن کشتی جدید
+                        </a>
+                    </div>
+                }
+            </div>
+
+            <!-- کارت آمار -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                <div class="bg-white rounded-xl shadow-lg p-6 border border-blue-100">
+                    <div class="flex items-center">
+                        <div class="bg-blue-100 p-3 rounded-full">
+                            <i class="fas fa-ship text-blue-600 text-xl"></i>
+                        </div>
+                        <div class="mr-3">
+                            <p class="text-sm font-medium text-gray-600">تعداد کل کشتی‌ها</p>
+                            <p class="text-2xl font-bold text-gray-900">@Model.Count()</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 border border-green-100">
+                    <div class="flex items-center">
+                        <div class="bg-green-100 p-3 rounded-full">
+                            <i class="fas fa-weight-hanging text-green-600 text-xl"></i>
+                        </div>
+                        <div class="mr-3">
+                            <p class="text-sm font-medium text-gray-600">میانگین ظرفیت</p>
+                            <p class="text-2xl font-bold text-gray-900">
+                                @{
+                                    var avgCapacity = Model.Any() ? Model.Average(s => s.Capacity ?? 0) : 0;
+                                    @avgCapacity.ToString("N0")
+                                } تن
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 border border-purple-100">
+                    <div class="flex items-center">
+                        <div class="bg-purple-100 p-3 rounded-full">
+                            <i class="fas fa-calendar text-purple-600 text-xl"></i>
+                        </div>
+                        <div class="mr-3">
+                            <p class="text-sm font-medium text-gray-600">جدیدترین کشتی</p>
+                            <p class="text-2xl font-bold text-gray-900">
+                                @(Model.Any() ? Model.Max(s => s.BuildYear ?? 0).ToString() : "-")
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        <script>
+            // اضافه کردن effect hover به ردیف‌های جدول
+            $(document).ready(function() {
+                $('tr').hover(
+                    function() {
+                        $(this).css('transform', 'translateX(-4px)');
+                    },
+                    function() {
+                        $(this).css('transform', 'translateX(0)');
+                    }
+                );
+            });
+        </script>
+    }
+</body>

@@ -1,0 +1,294 @@
+﻿<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - مدیریت اطلاعات پایه</title>
+    <link href="https://cdn.tailwindcss.com" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: Vazir, Tahoma, Arial, sans-serif;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .main-content {
+            margin-right: 280px;
+            transition: all 0.3s;
+            min-height: 100vh;
+            background: transparent !important;
+        }
+
+        .sidebar-collapsed .sidebar {
+            width: 80px;
+        }
+
+        .sidebar-collapsed .main-content {
+            margin-right: 80px;
+        }
+
+        .nav-item {
+            transition: all 0.3s;
+            position: relative;
+        }
+
+            .nav-item:hover {
+                background-color: #3b82f6;
+            }
+
+        .submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background-color: #1e40af;
+        }
+
+        .submenu-open {
+            max-height: 500px;
+        }
+
+        .nav-text {
+            transition: opacity 0.3s;
+        }
+
+        .sidebar-collapsed .nav-text {
+            opacity: 0;
+            display: none;
+        }
+
+        .sidebar-collapsed .fa-chevron-down {
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- دکمه جمع کردن سایدبار -->
+    <button id="sidebar-toggle" class="fixed top-4 right-4 z-1010 bg-blue-600 text-white p-2 rounded-lg shadow-lg hover:bg-blue-700 transition-colors">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- سایدبار -->
+    <div class="sidebar fixed right-0 top-0 h-screen bg-blue-800 text-white shadow-lg">
+        <div class="p-4 border-b border-blue-700 flex items-center justify-between">
+            <h2 class="text-xl font-bold">
+                <i class="fas fa-database ml-2"></i>
+                <span class="nav-text">اطلاعات پایه</span>
+            </h2>
+        </div>
+
+        <nav class="mt-4">
+            <!-- منوی کشتی‌ها -->
+            <div class="nav-item" data-menu="ships">
+                <a href="#" class="flex items-center p-4 text-white hover:bg-blue-700 submenu-toggle">
+                    <i class="fas fa-ship ml-3"></i>
+                    <span class="nav-text">مدیریت کشتی‌ها</span>
+                    <i class="fas fa-chevron-down mr-auto transition-transform duration-300"></i>
+                </a>
+                <div class="submenu" id="ships-submenu">
+                    <a asp-controller="BasicData" asp-action="Ships" class="block py-3 px-8 pr-12 text-white hover:bg-blue-600 flex items-center">
+                        <i class="fas fa-list ml-3"></i>
+                        <span class="nav-text">مشاهده همه</span>
+                    </a>
+                    <a asp-controller="BasicData" asp-action="CreateShip" class="block py-3 px-8 pr-12 text-white hover:bg-blue-600 flex items-center">
+                        <i class="fas fa-plus ml-3"></i>
+                        <span class="nav-text">افزودن جدید</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- منوی صاحبان کالا -->
+            <div class="nav-item" data-menu="cargo-owners">
+                <a href="#" class="flex items-center p-4 text-white hover:bg-blue-700 submenu-toggle">
+                    <i class="fas fa-user-tie ml-3"></i>
+                    <span class="nav-text">صاحبان کالا</span>
+                    <i class="fas fa-chevron-down mr-auto transition-transform duration-300"></i>
+                </a>
+                <div class="submenu" id="cargo-owners-submenu">
+                    <a asp-controller="BasicData" asp-action="CargoOwners" class="block py-3 px-8 pr-12 text-white hover:bg-blue-600 flex items-center">
+                        <i class="fas fa-list ml-3"></i>
+                        <span class="nav-text">مشاهده همه</span>
+                    </a>
+                    <a asp-controller="BasicData" asp-action="CreateCargoOwner" class="block py-3 px-8 pr-12 text-white hover:bg-blue-600 flex items-center">
+                        <i class="fas fa-plus ml-3"></i>
+                        <span class="nav-text">افزودن جدید</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- منوی انواع کالا -->
+            <div class="nav-item" data-menu="cargo-types">
+                <a href="#" class="flex items-center p-4 text-white hover:bg-blue-700 submenu-toggle">
+                    <i class="fas fa-box ml-3"></i>
+                    <span class="nav-text">انواع کالا</span>
+                    <i class="fas fa-chevron-down mr-auto transition-transform duration-300"></i>
+                </a>
+                <div class="submenu" id="cargo-types-submenu">
+                    <a asp-controller="BasicData" asp-action="CargoTypes" class="block py-3 px-8 pr-12 text-white hover:bg-blue-600 flex items-center">
+                        <i class="fas fa-list ml-3"></i>
+                        <span class="nav-text">مشاهده همه</span>
+                    </a>
+                    <a asp-controller="BasicData" asp-action="CreateCargoType" class="block py-3 px-8 pr-12 text-white hover:bg-blue-600 flex items-center">
+                        <i class="fas fa-plus ml-3"></i>
+                        <span class="nav-text">افزودن جدید</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- منوی خنکارها -->
+            <div class="nav-item" data-menu="dockworkers">
+                <a href="#" class="flex items-center p-4 text-white hover:bg-blue-700 submenu-toggle">
+                    <i class="fas fa-hard-hat ml-3"></i>
+                    <span class="nav-text">مدیریت خنکارها</span>
+                    <i class="fas fa-chevron-down mr-auto transition-transform duration-300"></i>
+                </a>
+                <div class="submenu" id="dockworkers-submenu">
+                    <a asp-controller="BasicData" asp-action="Dockworkers" class="block py-3 px-8 pr-12 text-white hover:bg-blue-600 flex items-center">
+                        <i class="fas fa-list ml-3"></i>
+                        <span class="nav-text">مشاهده همه</span>
+                    </a>
+                    <a asp-controller="BasicData" asp-action="CreateDockworker" class="block py-3 px-8 pr-12 text-white hover:bg-blue-600 flex items-center">
+                        <i class="fas fa-plus ml-3"></i>
+                        <span class="nav-text">افزودن جدید</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- منوی نمایندگان کشتیرانی -->
+            <div class="nav-item" data-menu="shipping-agents">
+                <a href="#" class="flex items-center p-4 text-white hover:bg-blue-700 submenu-toggle">
+                    <i class="fas fa-building ml-3"></i>
+                    <span class="nav-text">نمایندگان کشتیرانی</span>
+                    <i class="fas fa-chevron-down mr-auto transition-transform duration-300"></i>
+                </a>
+                <div class="submenu" id="shipping-agents-submenu">
+                    <a asp-controller="BasicData" asp-action="ShippingAgents" class="block py-3 px-8 pr-12 text-white hover:bg-blue-600 flex items-center">
+                        <i class="fas fa-list ml-3"></i>
+                        <span class="nav-text">مشاهده همه</span>
+                    </a>
+                    <a asp-controller="BasicData" asp-action="CreateShippingAgent" class="block py-3 px-8 pr-12 text-white hover:bg-blue-600 flex items-center">
+                        <i class="fas fa-plus ml-3"></i>
+                        <span class="nav-text">افزودن جدید</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- لینک بازگشت -->
+            <div class="absolute bottom-0 w-full p-4 border-t border-blue-700">
+                <a asp-controller="Home" asp-action="Index" class="flex items-center p-3 text-white hover:bg-blue-700 rounded">
+                    <i class="fas fa-home ml-3"></i>
+                    <span class="nav-text">بازگشت به خانه</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- محتوای اصلی -->
+    <div class="main-content">
+        @RenderBody()
+    </div>
+
+    <script>
+        // مدیریت باز و بسته شدن زیرمنوها
+        document.querySelectorAll('.submenu-toggle').forEach(toggle => {
+            toggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const submenu = this.nextElementSibling;
+                const chevron = this.querySelector('.fa-chevron-down');
+
+                // بستن سایر منوها
+                document.querySelectorAll('.submenu').forEach(otherMenu => {
+                    if (otherMenu !== submenu) {
+                        otherMenu.classList.remove('submenu-open');
+                        otherMenu.closest('.nav-item').classList.remove('active');
+                    }
+                });
+
+                // باز/بسته کردن منوی جاری
+                submenu.classList.toggle('submenu-open');
+
+                // چرخش آیکون
+                if (submenu.classList.contains('submenu-open')) {
+                    chevron.style.transform = 'rotate(180deg)';
+                    this.closest('.nav-item').classList.add('active');
+                } else {
+                    chevron.style.transform = 'rotate(0deg)';
+                    this.closest('.nav-item').classList.remove('active');
+                }
+            });
+        });
+
+        // مدیریت جمع و باز کردن سایدبار
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            document.body.classList.toggle('sidebar-collapsed');
+
+            const icon = this.querySelector('i');
+            if (document.body.classList.contains('sidebar-collapsed')) {
+                icon.className = 'fas fa-bars';
+            } else {
+                icon.className = 'fas fa-times';
+            }
+        });
+
+        // تشخیص صفحه فعال و باز کردن منوی مربوطه
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUrl = window.location.pathname;
+
+            // پیدا کردن منوی فعال بر اساس URL
+            document.querySelectorAll('.submenu a').forEach(link => {
+                if (link.href.includes(currentUrl)) {
+                    link.classList.add('active');
+                    const parentMenu = link.closest('.nav-item');
+                    const submenu = link.closest('.submenu');
+                    const toggle = parentMenu.querySelector('.submenu-toggle');
+                    const chevron = toggle.querySelector('.fa-chevron-down');
+
+                    // باز کردن منوی والد
+                    submenu.classList.add('submenu-open');
+                    parentMenu.classList.add('active');
+                    chevron.style.transform = 'rotate(180deg)';
+                }
+            });
+
+            // اگر هیچ منویی فعال نیست، اولین منو را باز کن
+            const activeMenu = document.querySelector('.nav-item.active');
+            if (!activeMenu) {
+                const firstMenu = document.querySelector('.nav-item');
+                if (firstMenu) {
+                    const firstSubmenu = firstMenu.querySelector('.submenu');
+                    const firstToggle = firstMenu.querySelector('.submenu-toggle');
+                    const firstChevron = firstToggle.querySelector('.fa-chevron-down');
+
+                    firstSubmenu.classList.add('submenu-open');
+                    firstMenu.classList.add('active');
+                    firstChevron.style.transform = 'rotate(180deg)';
+                }
+            }
+        });
+
+        // بستن منوها با کلیک خارج از آنها
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.nav-item')) {
+                document.querySelectorAll('.submenu').forEach(menu => {
+                    menu.classList.remove('submenu-open');
+                });
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+            }
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

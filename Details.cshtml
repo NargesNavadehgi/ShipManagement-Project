@@ -1,0 +1,387 @@
+﻿@model ShipManagement.Models.Shipment
+
+@{
+    ViewData["Title"] = "جزئیات اطلاعات کشتی";
+}
+
+@{
+    // تابع تبدیل تاریخ میلادی به شمسی (پشتیبانی از nullable)
+    string ConvertToPersianDate(DateTime? date)
+    {
+        if (!date.HasValue)
+            return "تاریخ مشخص نشده";
+
+        var pc = new System.Globalization.PersianCalendar();
+        return $"{pc.GetYear(date.Value)}/{pc.GetMonth(date.Value):00}/{pc.GetDayOfMonth(date.Value):00} - {date.Value:HH:mm}";
+    }
+}
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <!-- استفاده از Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        .detail-card {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-header {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            border-radius: 0.75rem 0.75rem 0 0;
+            padding: 1.25rem;
+        }
+
+        .detail-value {
+            background-color: #f9fafb;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e5e7eb;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
+    <div class="max-w-6xl mx-auto">
+        <!-- هدر صفحه -->
+        <div class="detail-card">
+            <div class="detail-header">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-bold flex items-center">
+                            <i class="fas fa-info-circle ml-3"></i>
+                            جزئیات اطلاعات کشتی
+                        </h1>
+                        <p class="mt-2 opacity-90">مشاهده اطلاعات کامل کشتی ثبت شده</p>
+                    </div>
+                    <div class="bg-white bg-opacity-20 p-3 rounded-full">
+                        <i class="fas fa-ship text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6">
+                <!-- دکمه بازگشت -->
+                <div class="mb-6">
+                    <a asp-action="Index" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition duration-200 flex items-center w-fit">
+                        <i class="fas fa-arrow-right ml-2"></i>
+                        بازگشت به لیست
+                    </a>
+                </div>
+
+                <!-- کارت اطلاعات اصلی -->
+                <div class="detail-card mb-6">
+                    <div class="p-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-info-circle ml-2 text-blue-500"></i>
+                            اطلاعات اصلی
+                        </h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- فیلد تاریخ ثبت -->
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-calendar-check ml-2 text-blue-400"></i>
+                                    تاریخ ثبت
+                                </label>
+                                <div class="detail-value">
+                                    @ConvertToPersianDate(Model.RegistrationDate)
+                                </div>
+                            </div>
+
+                            <!-- فیلد نام کشتی -->
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-flag ml-2 text-blue-400"></i>
+                                    نام کشتی
+                                </label>
+                                <div class="detail-value">
+                                    @Model.ShipName
+                                </div>
+                            </div>
+
+                            <!-- فیلد نماینده کشتیرانی -->
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-building ml-2 text-blue-400"></i>
+                                    نماینده کشتیرانی
+                                </label>
+                                <div class="detail-value">
+                                    @Model.ShippingAgent
+                                </div>
+                            </div>
+
+                            <!-- فیلد تاریخ ورود -->
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-calendar-day ml-2 text-blue-400"></i>
+                                    تاریخ ورود به اسکله
+                                </label>
+                                <div class="detail-value">
+                                    @ConvertToPersianDate(Model.ArrivalDate)
+                                </div>
+                            </div>
+
+                            <!-- فیلد خنکار -->
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-hard-hat ml-2 text-purple-400"></i>
+                                    خنکار
+                                </label>
+                                <div class="detail-value">
+                                    @Model.Dockworker
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- کارت اطلاعات بار -->
+                <div class="detail-card mb-6">
+                    <div class="p-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-boxes ml-2 text-green-500"></i>
+                            اطلاعات بار
+                        </h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- فیلد وزن بار -->
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-weight-hanging ml-2 text-green-400"></i>
+                                    وزن محموله
+                                </label>
+                                <div class="detail-value">
+                                    @Model.CargoWeight تن
+                                </div>
+                            </div>
+
+                            <!-- فیلد نوع کالا -->
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-tag ml-2 text-green-400"></i>
+                                    نوع کالا
+                                </label>
+                                <div class="detail-value">
+                                    @Model.CargoType
+                                </div>
+                            </div>
+
+                            <!-- فیلد مالک بار -->
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-user-tie ml-2 text-green-400"></i>
+                                    صاحب کالا
+                                </label>
+                                <div class="detail-value">
+                                    @Model.CargoOwner
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- کارت اطلاعات مالی -->
+                <div class="detail-card mb-6">
+                    <div class="p-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-money-bill-wave ml-2 text-yellow-500"></i>
+                            اطلاعات مالی
+                        </h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- فیلد تعرفه -->
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-file-invoice-dollar ml-2 text-yellow-400"></i>
+                                    تعرفه
+                                </label>
+                                <div class="detail-value">
+                                    @((float?)Model.Tariff) ریال
+                                </div>
+                            </div>
+
+                            <!-- فیلد ارزش افزوده -->
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-chart-line ml-2 text-yellow-400"></i>
+                                    ارزش افزوده
+                                </label>
+                                <div class="detail-value">
+                                    @((float?)Model.AddedValue) ریال
+                                </div>
+                            </div>
+
+                            <!-- فیلد مبلغ کل -->
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-calculator ml-2 text-yellow-400"></i>
+                                    مبلغ کل
+                                </label>
+                                <div class="detail-value">
+                                    @((float?)Model.TotalAmount) ریال
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- کارت روش تسویه و مبلغ -->
+                <div class="detail-card mb-6">
+                    <div class="p-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-credit-card ml-2 text-teal-500"></i>
+                            اطلاعات تسویه حساب
+                        </h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- فیلد روش تسویه -->
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-money-check-alt ml-2 text-teal-400"></i>
+                                    روش تسویه
+                                </label>
+                                <div class="detail-value">
+                                    @Model.PaymentMethod
+                                </div>
+                            </div>
+
+                            <!-- فیلد مبلغ معادل -->
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-coins ml-2 text-teal-400"></i>
+                                    مبلغ معادل (ریال)
+                                </label>
+                                <div class="detail-value">
+                                    @((float?)Model.EquivalentAmount) ریال
+                                </div>
+                            </div>
+
+                            <!-- فیلد توضیحات روش تسویه (در صورت وجود) -->
+                            @if (!string.IsNullOrEmpty(Model.OtherPaymentMethod))
+                            {
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-medium text-gray-700 flex items-center">
+                                        <i class="fas fa-comment-dots ml-2 text-teal-400"></i>
+                                        توضیحات روش تسویه
+                                    </label>
+                                    <div class="detail-value">
+                                        @Model.OtherPaymentMethod
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- کارت اطلاعات تخلیه -->
+                <div class="detail-card mb-6">
+                    <div class="p-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-truck-loading ml-2 text-purple-500"></i>
+                            اطلاعات تخلیه
+                        </h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- تاریخ شروع تخلیه -->
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-play-circle ml-2 text-purple-400"></i>
+                                    تاریخ شروع تخلیه
+                                </label>
+                                <div class="detail-value">
+                                    @ConvertToPersianDate(Model.UnloadingStartDate)
+                                </div>
+                            </div>
+
+                            <!-- تاریخ اتمام تخلیه -->
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-check-circle ml-2 text-purple-400"></i>
+                                    تاریخ اتمام تخلیه
+                                </label>
+                                <div class="detail-value">
+                                    @ConvertToPersianDate(Model.UnloadingCompletionDate)
+                                </div>
+                            </div>
+
+                            <!-- میزان تخلیه شده -->
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-weight ml-2 text-purple-400"></i>
+                                    میزان تخلیه شده (تن)
+                                </label>
+                                <div class="detail-value">
+                                    @Model.UnloadedAmount تن
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- کارت اطلاعات دیگر -->
+                <div class="detail-card mb-6">
+                    <div class="p-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-list-alt ml-2 text-indigo-500"></i>
+                            سایر اطلاعات
+                        </h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- فیلد شماره مجوز تخلیه -->
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-file-alt ml-2 text-indigo-400"></i>
+                                    شماره مجوز تخلیه
+                                </label>
+                                <div class="detail-value">
+                                    @Model.UnloadingPermitNumber
+                                </div>
+                            </div>
+
+                            <!-- فیلد شماره سفر -->
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-route ml-2 text-indigo-400"></i>
+                                    شماره سفر
+                                </label>
+                                <div class="detail-value">
+                                    @Model.VoyageNumber
+                                </div>
+                            </div>
+
+                            <!-- تاریخ خروج -->
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-calendar-times ml-2 text-indigo-400"></i>
+                                    تاریخ خروج
+                                </label>
+                                <div class="detail-value">
+                                    @ConvertToPersianDate(Model.DepartureDate)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- دکمه های عملیات -->
+                <div class="flex justify-center gap-4 mt-8">
+                    <a asp-action="Index" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-medium transition duration-200 flex items-center">
+                        <i class="fas fa-list ml-2"></i>
+                        بازگشت به لیست
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

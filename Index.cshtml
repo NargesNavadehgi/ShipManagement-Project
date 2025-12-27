@@ -1,0 +1,283 @@
+﻿@model IEnumerable<ShipManagement.Models.Shipment>
+@functions {
+    public string ConvertToPersianDate(DateTime? date)
+    {
+        if (!date.HasValue)
+            return "-";
+
+        var persianCalendar = new System.Globalization.PersianCalendar();
+        var year = persianCalendar.GetYear(date.Value);
+        var month = persianCalendar.GetMonth(date.Value);
+        var day = persianCalendar.GetDayOfMonth(date.Value);
+
+        return $"{year:0000}/{month:00}/{day:00}";
+    }
+}
+
+@{
+    ViewData["Title"] = "لیست کشتی‌ها";
+
+    // Distinct کردن کشتی‌ها بر اساس نام کشتی و تاریخ شروع تخلیه
+    var distinctShips = Model
+        .GroupBy(s => new { s.ShipName, s.UnloadingStartDate })
+        .Select(g => g.First())
+        .ToList();
+}
+
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لیست کشتی‌ها</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            text-align: right;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background-color: #f9fafb;
+            font-weight: 500;
+            font-size: 0.75rem;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .text-xs {
+            font-size: 0.75rem;
+        }
+
+        .text-sm {
+            font-size: 0.875rem;
+        }
+
+        .stats-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .stat-item {
+            flex: 1;
+            min-width: 200px;
+            background-color: white;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+        }
+
+        @@media (max-width: 768px) {
+            .stat-item {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="max-w-8xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+        <!-- هدر صفحه -->
+        <div class="bg-white rounded-lg shadow-sm p-4 mb-4 border border-gray-200">
+            <div class="flex flex-col sm:flex-row items-center justify-between">
+                <div class="flex items-center mb-3 sm:mb-0">
+                    <div class="bg-blue-100 p-2 rounded-lg mr-3">
+                        <i class="fas fa-ship text-blue-600 text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-800">
+                            مدیریت کشتی‌ها
+                        </h1>
+                        <p class="text-sm text-gray-600 mt-1">مدیریت اطلاعات کشتی‌های ثبت شده</p>
+                    </div>
+                </div>
+                <a asp-action="Create" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center">
+                    <i class="fas fa-plus ml-2 text-xs"></i>
+                    کشتی جدید
+                </a>
+            </div>
+        </div>
+
+        <!-- نمایش پیام موفقیت -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-lg mb-4 flex items-center text-sm">
+                <i class="fas fa-check-circle text-emerald-500 ml-2"></i>
+                <span>@TempData["SuccessMessage"]</span>
+            </div>
+        }
+
+        <!-- آمار کلی در یک ردیف -->
+        <div class="stats-row">
+            <div class="stat-item">
+                <div class="bg-blue-100 p-2 rounded-lg mr-3">
+                    <i class="fas fa-ship text-blue-600 text-sm"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-600">تعداد کشتی‌ها</p>
+                    <p class="text-lg font-bold text-gray-900">@distinctShips.Count فروند</p>
+                </div>
+            </div>
+
+            <div class="stat-item">
+                <div class="bg-green-100 p-2 rounded-lg mr-3">
+                    <i class="fas fa-weight-hanging text-green-600 text-sm"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-600">وزن محموله</p>
+                    <p class="text-lg font-bold text-gray-900">
+                        @(distinctShips.Sum(s => s.CargoWeight)?.ToString("N0") ?? "0") تن
+                    </p>
+                </div>
+            </div>
+
+            <div class="stat-item">
+                <div class="bg-amber-100 p-2 rounded-lg mr-3">
+                    <i class="fas fa-truck-loading text-amber-600 text-sm"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-600">تخلیه شده</p>
+                    <p class="text-lg font-bold text-gray-900">@(Model.Sum(s => s.UnloadedAmount)?.ToString("N0") ?? "0") تن</p>
+                </div>
+            </div>
+
+            <div class="stat-item">
+                <div class="bg-purple-100 p-2 rounded-lg mr-3">
+                    <i class="fas fa-calendar-alt text-purple-600 text-sm"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-600">امروز</p>
+                    <p class="text-lg font-bold text-gray-900">@ConvertToPersianDate(DateTime.Now)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- کارت لیست کشتی‌ها -->
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+            @if (Model.Any())
+            {
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                    نام کشتی
+                                </th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                    نماینده
+                                </th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                    تاریخ ثبت
+                                </th>
+
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                     تاریخ ورود
+                                </th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                   تاریخ شروع تخلیه
+                                </th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                   تاریخ پایان تخلیه
+                                </th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                   وزن تخلیه شده
+                                </th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                    وزن محموله
+                                </th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                    عملیات
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @foreach (var item in Model)
+                            {
+                                <tr class="hover:bg-blue-50 transition-colors duration-150">
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="text-sm font-medium text-gray-900">@item.ShipName</div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="text-sm text-gray-700">@item.ShippingAgent</div>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="text-sm text-gray-700">@ConvertToPersianDate(item.RegistrationDate)</div>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded">
+                                            @ConvertToPersianDate(item.ArrivalDate)
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="text-xs text-gray-600 bg-amber-50 px-2 py-1 rounded">
+                                            @ConvertToPersianDate(item.UnloadingStartDate)
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="text-xs text-gray-600 bg-emerald-50 px-2 py-1 rounded">
+                                            @ConvertToPersianDate(item.UnloadingCompletionDate)
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-blue-700">
+                                            @item.UnloadedAmount?.ToString("N0") تن
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="text-sm text-gray-700">
+                                            @item.CargoWeight?.ToString("N0") تن
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="flex items-center space-x-2 space-x-reverse">
+                                            <a asp-action="Details" asp-route-id="@item.Id" class="text-blue-600 hover:text-blue-800 text-sm transition-colors duration-200">
+                                                <i class="fas fa-eye ml-1"></i>
+                                            </a>
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="text-amber-600 hover:text-amber-800 text-sm transition-colors duration-200">
+                                                <i class="fas fa-edit ml-1"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.Id" class="text-red-600 hover:text-red-800 text-sm transition-colors duration-200">
+                                                <i class="fas fa-trash ml-1"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-8">
+                    <div class="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-ship text-2xl text-gray-400"></i>
+                    </div>
+                    <h3 class="text-base font-medium text-gray-600 mb-2">هیچ کشتی ثبت نشده است</h3>
+                    <p class="text-sm text-gray-500 mb-4">برای شروع، اولین کشتی را ثبت کنید</p>
+                    <a asp-action="Create" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center transition-colors duration-200">
+                        <i class="fas fa-plus ml-2 text-xs"></i>
+                        ثبت کشتی جدید
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,157 @@
+﻿@model IEnumerable<ShipManagement.Models.ShipmentReportResultViewModel>
+
+@{
+    ViewData["Title"] = "گزارش کشتی‌ها";
+    Layout = "_ReportLayout";
+
+    string ToPersianDate(DateTime? date)
+    {
+        if (!date.HasValue) return "-";
+        try
+        {
+            var pc = new System.Globalization.PersianCalendar();
+            return $"{pc.GetYear(date.Value)}/{pc.GetMonth(date.Value):00}/{pc.GetDayOfMonth(date.Value):00}";
+        }
+        catch
+        {
+            return date.Value.ToString("yyyy/MM/dd");
+        }
+    }
+}
+
+<div class="max-w-7xl mx-auto py-8 px-4">
+
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold flex items-center text-blue-800">
+                    <svg class="w-6 h-6 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    گزارش کشتی‌ها
+                </h1>
+                <p class="mt-2 text-gray-600">گزارش جامع اطلاعات کشتی‌های ثبت شده</p>
+                <p class="text-sm text-gray-500 mt-1">تاریخ تولید گزارش: @ToPersianDate(DateTime.Now)</p>
+            </div>
+            <div class="flex space-x-3 space-x-reverse">
+                <button onclick="window.print()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition duration-200 flex items-center">
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    چاپ گزارش
+                </button>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+            <div class="bg-blue-50 p-4 rounded-lg border border-blue-200 text-right">
+                <p class="text-sm font-medium text-gray-600">تعداد کل کشتی‌ها</p>
+                <p class="text-xl font-bold text-gray-900">@Model.Count()</p>
+            </div>
+            <div class="bg-green-50 p-4 rounded-lg border border-green-200 text-right">
+                <p class="text-sm font-medium text-gray-600">مجموع محموله</p>
+                <p class="text-xl font-bold text-gray-900">@(Model.Sum(s => s.CargoWeight ?? 0).ToString("N0")) تن</p>
+            </div>
+            <div class="bg-purple-50 p-4 rounded-lg border border-purple-200 text-right">
+                <p class="text-sm font-medium text-gray-600">مجموع تخلیه شده</p>
+                <p class="text-xl font-bold text-gray-900">@(Model.Sum(s => s.TotalUnloadedAmount ?? 0).ToString("N0")) تن</p>
+            </div>
+            <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-200 text-right">
+                <p class="text-sm font-medium text-gray-600">میانگین وزن</p>
+                <p class="text-xl font-bold text-gray-900">@(Model.Average(s => s.CargoWeight)?.ToString("N0") ?? "0")</p>
+            </div>
+            <div class="bg-orange-50 p-4 rounded-lg border border-orange-200 text-right">
+                <p class="text-sm font-medium text-gray-600">تاریخ امروز</p>
+                <p class="text-xl font-bold text-gray-900">@ToPersianDate(DateTime.Now)</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-blue-600 text-white">
+                        <tr>
+                            <th class="px-4 py-3 text-right text-xs font-bold uppercase">نام کشتی</th>
+                            <th class="px-4 py-3 text-right text-xs font-bold uppercase">نماینده</th>
+                            <th class="px-4 py-3 text-right text-xs font-bold uppercase">تاریخ ورود</th>
+                            <th class="px-4 py-3 text-right text-xs font-bold uppercase">تخلیه (تن)</th>
+                            <th class="px-4 py-3 text-right text-xs font-bold uppercase">وزن کل (تن)</th>
+                            <th class="px-4 py-3 text-right text-xs font-bold uppercase">درصد</th>
+                            <th class="px-4 py-3 text-right text-xs font-bold uppercase">وضعیت</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 text-right">
+                        @foreach (var item in Model)
+                        {
+                            <tr class="hover:bg-blue-50">
+                                <td class="px-4 py-4 text-sm font-bold text-gray-900">@item.ShipName</td>
+                                <td class="px-4 py-4 text-sm text-gray-600">@item.ShippingAgent</td>
+                                <td class="px-4 py-4 text-sm text-gray-600">@ToPersianDate(item.ArrivalDate)</td>
+                                <td class="px-4 py-4 text-sm font-bold text-blue-800">@(item.TotalUnloadedAmount?.ToString("N0"))</td>
+                                <td class="px-4 py-4 text-sm text-gray-900">@(item.CargoWeight?.ToString("N0"))</td>
+                                <td class="px-4 py-4 text-sm font-bold">@item.UnloadingPercentage.ToString("F1")%</td>
+                                <td class="px-4 py-4 text-xs font-bold">@item.Status</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                <h2 class="text-lg font-bold text-gray-800 mb-4 text-right">وضعیت پیشرفت تخلیه</h2>
+                <canvas id="statusChart" height="250"></canvas>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                <h2 class="text-lg font-bold text-gray-800 mb-4 text-right">مقایسه بارهای ثبت شده</h2>
+                <canvas id="weightChart" height="250"></canvas>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    @if (Model.Any())
+    {
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            const modelData = @Html.Raw(Json.Serialize(Model));
+            Chart.defaults.font.family = 'Tahoma'; // یا فونت دلخواه شما
+
+            // نمودار دایره ای وضعیت
+            const statusCounts = modelData.reduce((acc, item) => {
+                const s = item.status || item.Status || 'سایر';
+                acc[s] = (acc[s] || 0) + 1;
+                return acc;
+            }, {});
+
+            new Chart(document.getElementById('statusChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(statusCounts),
+                    datasets: [{
+                        data: Object.values(statusCounts),
+                        backgroundColor: ['#10B981', '#FBBF24', '#3B82F6', '#EF4444']
+                    }]
+                },
+                options: { plugins: { legend: { position: 'bottom', rtl: true } } }
+            });
+
+            // نمودار میله ای مقایسه وزن
+            const top5 = modelData.slice(0, 5);
+            new Chart(document.getElementById('weightChart'), {
+                type: 'bar',
+                data: {
+                    labels: top5.map(s => s.shipName || s.ShipName),
+                    datasets: [
+                        { label: 'وزن کل', data: top5.map(s => s.cargoWeight || s.CargoWeight), backgroundColor: '#3B82F6' },
+                        { label: 'تخلیه شده', data: top5.map(s => s.totalUnloadedAmount || s.TotalUnloadedAmount), backgroundColor: '#10B981' }
+                    ]
+                },
+                options: { scales: { y: { beginAtZero: true } }, plugins: { legend: { rtl: true } } }
+            });
+        </script>
+    }
+}

@@ -1,0 +1,155 @@
+﻿<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - سیستم مدیریت کشتی‌ها</title>
+
+    <!-- لینک فایل های CSS -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.rtl.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <!-- اضافه کردن فونت Vazir از CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css">
+
+    <!-- اضافه کردن Tailwind CSS از CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        /* راست‌چین کردن کامل صفحه با فونت وزیر */
+        body {
+            font-family: Vazir, Tahoma, Arial, sans-serif !important;
+            direction: rtl !important;
+            text-align: right !important;
+            line-height: 1.8;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* راست‌چین کردن همه عناصر */
+        .container, .row, .col,
+        .card, .form-control, .btn,
+        .table, .navbar, .dropdown-menu,
+        .list-group, .modal-content {
+            direction: rtl !important;
+            text-align: right !important;
+            font-family: Vazir, Tahoma, Arial, sans-serif !important;
+        }
+
+        /* استایل برای منوی ناوبری */
+        .navbar-nav {
+            margin-right: 0 !important;
+        }
+
+        .dropdown-menu {
+            left: auto !important;
+            right: 0 !important;
+            text-align: right;
+        }
+
+        /* بهبود ظاهر منوهای dropdown */
+        .dropdown-item {
+            padding: 0.5rem 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+            .dropdown-item i {
+                margin-left: 0.5rem;
+                width: 20px;
+                text-align: center;
+            }
+
+        /* استایل برای هدر */
+        .navbar-brand {
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+            .navbar-brand i {
+                margin-left: 0.5rem;
+            }
+
+        /* استایل برای منوی فعال */
+        .nav-item.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 0.25rem;
+        }
+
+        /* بهبود ظاهر Tailwind با فونت فارسی */
+        .font-sans {
+            font-family: Vazir, Tahoma, Arial, sans-serif !important;
+        }
+
+        .font-serif {
+            font-family: Vazir, Tahoma, serif !important;
+        }
+
+        .font-mono {
+            font-family: Vazir, Tahoma, monospace !important;
+        }
+
+        /* اطمینان از راست‌چین بودن همه عناصر Tailwind */
+        [dir="rtl"] .text-left {
+            text-align: right;
+        }
+
+        [dir="rtl"] .text-right {
+            text-align: left;
+        }
+
+        /* استایل برای جداول */
+        table {
+            font-family: Vazir, Tahoma, sans-serif !important;
+            direction: rtl !important;
+        }
+
+        th, td {
+            text-align: right !important;
+        }
+
+        /* استایل برای فرم‌ها */
+        input, textarea, select {
+            font-family: Vazir, Tahoma, sans-serif !important;
+            text-align: right !important;
+        }
+
+        /* استایل برای دکمه‌ها */
+        button {
+            font-family: Vazir, Tahoma, sans-serif !important;
+        }
+
+        /* پشتیبانی از چاپ */
+        @@media print {
+            body
+
+        {
+            font-family: Vazir, Tahoma, Arial, sans-serif !important;
+            direction: rtl !important;
+            text-align: right !important;
+        }
+
+        }
+    </style>
+
+    @if (IsSectionDefined("Styles"))
+    {
+        @RenderSection("Styles", required: false)
+    }
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="min-h-screen">
+        @RenderBody()
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- اضافه کردن پشتیبانی از آیکون‌ها (اختیاری) -->
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

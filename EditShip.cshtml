@@ -1,0 +1,167 @@
+﻿@model ShipManagement.Models.Ship
+
+@{
+    ViewData["Title"] = "ویرایش کشتی";
+    Layout = "_BasicDataLayout";
+}
+
+<head>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Vazir', Tahoma, Arial, sans-serif !important;
+            direction: rtl !important;
+        }
+    </style>
+</head>
+
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
+    <div class="max-w-4xl mx-auto">
+        <!-- هدر فرم -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8 border border-blue-100">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800 flex items-center">
+                        <i class="fas fa-edit ml-3 text-blue-500"></i>
+                        ویرایش کشتی
+                    </h1>
+                    <p class="text-gray-600 mt-2">فرم زیر را برای ویرایش اطلاعات کشتی تکمیل کنید</p>
+                </div>
+                <div class="bg-blue-100 p-4 rounded-full">
+                    <i class="fas fa-ship text-3xl text-blue-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- فرم اصلی -->
+        <form asp-action="EditShip" method="post" id="shipForm">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <div asp-validation-summary="ModelOnly" class="bg-red-50 text-red-700 p-4 rounded-lg mb-6"></div>
+
+            <!-- کارت اطلاعات کشتی -->
+            <div class="bg-white rounded-xl shadow-lg p-6 border border-blue-100 mb-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-info-circle ml-2 text-blue-500"></i>
+                    اطلاعات کشتی
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- فیلد نام کشتی -->
+                    <div class="space-y-2">
+                        <label asp-for="Name" class="block text-sm font-medium text-gray-700 flex items-center">
+                            <i class="fas fa-flag ml-2 text-blue-400"></i>
+                            نام کشتی *
+                        </label>
+                        <input asp-for="Name" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm" placeholder="نام کشتی را وارد کنید" />
+                        <span asp-validation-for="Name" class="text-red-500 text-xs"></span>
+                    </div>
+
+                    <!-- فیلد کشور -->
+                    <div class="space-y-2">
+                        <label asp-for="Country" class="block text-sm font-medium text-gray-700 flex items-center">
+                            <i class="fas fa-globe ml-2 text-blue-400"></i>
+                            کشور
+                        </label>
+                        <input asp-for="Country" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm" placeholder="کشور را وارد کنید" />
+                        <span asp-validation-for="Country" class="text-red-500 text-xs"></span>
+                    </div>
+
+                    <!-- فیلد ظرفیت -->
+                    <div class="space-y-2">
+                        <label asp-for="Capacity" class="block text-sm font-medium text-gray-700 flex items-center">
+                            <i class="fas fa-weight-hanging ml-2 text-blue-400"></i>
+                            ظرفیت (تن)
+                        </label>
+                        <input asp-for="Capacity" type="number" step="0.01" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm" placeholder="ظرفیت بر حسب تن" />
+                        <span asp-validation-for="Capacity" class="text-red-500 text-xs"></span>
+                    </div>
+
+                    <!-- فیلد سال ساخت -->
+                    <div class="space-y-2">
+                        <label asp-for="BuildYear" class="block text-sm font-medium text-gray-700 flex items-center">
+                            <i class="fas fa-calendar ml-2 text-blue-400"></i>
+                            سال ساخت
+                        </label>
+                        <input asp-for="BuildYear" type="number" min="1900" max="@DateTime.Now.Year" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm" placeholder="سال ساخت" />
+                        <span asp-validation-for="BuildYear" class="text-red-500 text-xs"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- دکمه‌های action -->
+            <div class="flex justify-between mt-8">
+                <a asp-action="Ships" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition duration-200 flex items-center">
+                    <i class="fas fa-arrow-right ml-2"></i>
+                    بازگشت به لیست
+                </a>
+                <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-medium transition duration-200 flex items-center">
+                    <i class="fas fa-save ml-2"></i>
+                    ذخیره تغییرات
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            // اعتبارسنجی client-side
+            $('#shipForm').on('submit', function (e) {
+                let isValid = true;
+
+                // بررسی نام کشتی
+                const shipName = $('#Name').val().trim();
+                if (!shipName) {
+                    isValid = false;
+                    $('#Name').addClass('border-red-500');
+                } else {
+                    $('#Name').removeClass('border-red-500');
+                }
+
+                // بررسی سال ساخت
+                const buildYear = $('#BuildYear').val();
+                if (buildYear) {
+                    const currentYear = new Date().getFullYear();
+                    if (buildYear < 1900 || buildYear > currentYear) {
+                        isValid = false;
+                        $('#BuildYear').addClass('border-red-500');
+                        alert('سال ساخت باید بین 1900 و ' + currentYear + ' باشد.');
+                    } else {
+                        $('#BuildYear').removeClass('border-red-500');
+                    }
+                }
+
+                if (!isValid) {
+                    e.preventDefault();
+                }
+            });
+
+            // پاک کردن خطاها هنگام تایپ
+            $('input').on('input', function() {
+                $(this).removeClass('border-red-500');
+
+                // اعتبارسنجی لحظه‌ای برای سال ساخت
+                if ($(this).attr('id') === 'BuildYear') {
+                    const buildYear = $(this).val();
+                    if (buildYear) {
+                        const currentYear = new Date().getFullYear();
+                        if (buildYear < 1900 || buildYear > currentYear) {
+                            $(this).addClass('border-red-500');
+                        } else {
+                            $(this).removeClass('border-red-500');
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,8 @@
+﻿@model bool?
+
+<input type="checkbox"
+       name="@ViewData.TemplateInfo.HtmlFieldPrefix"
+       value="true"
+@(Model == true ? "checked='checked'" : "")
+@(ViewData["htmlAttributes"] != null ? Html.Raw(ViewData["htmlAttributes"]) : "") />
+<input type="hidden" name="@ViewData.TemplateInfo.HtmlFieldPrefix" value="false" />

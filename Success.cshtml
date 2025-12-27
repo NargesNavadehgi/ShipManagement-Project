@@ -1,0 +1,19 @@
+﻿@{
+    ViewData["Title"] = "ثبت موفق";
+}
+
+<div class="min-h-screen bg-gradient-to-br from-green-50 to-teal-100 flex items-center justify-center">
+    <div class="bg-white rounded-xl shadow-lg p-8 text-center">
+        <div class="text-6xl text-green-500 mb-4">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h1 class="text-2xl font-bold text-gray-800 mb-4">اطلاعات با موفقیت ثبت شد</h1>
+        <p class="text-gray-600 mb-6">اطلاعات کشتی با موفقیت در سیستم ثبت گردید</p>
+        <a href="@Url.Action("Create")" class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600">
+            ثبت اطلاعات جدید
+        </a>
+        <a href="@Url.Action("Index")" class="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 mr-3">
+            مشاهده لیست
+        </a>
+    </div>
+</div>

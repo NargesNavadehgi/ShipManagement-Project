@@ -1,0 +1,615 @@
+﻿@model ShipManagement.Models.Shipment
+
+@{
+    ViewData["Title"] = "ثبت اطلاعات کشتی";
+}
+
+@{
+    // تابع تبدیل تاریخ میلادی به شمسی
+    string ConvertToPersianDate(DateTime date)
+    {
+        var pc = new System.Globalization.PersianCalendar();
+        return $"{pc.GetYear(date)}/{pc.GetMonth(date):00}/{pc.GetDayOfMonth(date):00} - {date:HH:mm}";
+    }
+}
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Persian Date -->
+    <script src="https://unpkg.com/persian-date/dist/persian-date.js"></script>
+
+    <!-- Persian Datepicker -->
+    <link rel="stylesheet" href="https://unpkg.com/persian-datepicker/dist/css/persian-datepicker.css" />
+    <script src="https://unpkg.com/persian-datepicker/dist/js/persian-datepicker.js"></script>
+
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+
+    <style>
+        /* استایل کلی برای dropdown */
+       
+      select {
+    z-index: 9999 !important;
+    position: relative;
+}
+
+            /* استایل وقتی dropdown باز است */
+            select:focus {
+                outline: none;
+                border-color: #3b82f6;
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            }
+
+        /* استایل برای گزینه‌های داخل dropdown */
+        option {
+            background-color: white;
+            color: #374151;
+            padding: 0.75rem;
+            font-size: 0.9rem;
+            direction: rtl;
+        }
+
+            /* استایل وقتی روی گزینه هاور می‌شود */
+            option:hover {
+                background-color: #3b82f6;
+                color: white;
+            }
+
+            /* استایل برای گزینه غیرفعال (placeholder) */
+            option[value=""] {
+                color: #9ca3af;
+            }
+
+        /* استایل آیکون فلش dropdown */
+        .relative .fa-chevron-down {
+            color: #6b7280;
+            pointer-events: none;
+        }
+        .datepicker-container {
+            position: relative;
+        }
+
+        .datepicker-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .date-input {
+            cursor: pointer;
+            padding-left: 40px !important;
+        }
+
+        /* Persian Datepicker Style */
+        .pdatepicker-gui {
+            z-index: 9999 !important;
+            font-family: inherit;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+            .pdatepicker-gui .pdatepicker-header {
+                background-color: #3b82f6;
+                color: white;
+                padding: 0.75rem;
+            }
+
+        /* استایل‌های عمومی برای فرم */
+        .form-card {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .form-header {
+            background: linear-gradient(to right, #3b82f6, #1d4ed8);
+            color: white;
+            padding: 1.5rem;
+        }
+
+        input, select {
+            transition: all 0.3s;
+        }
+
+            input:focus, select:focus {
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+                outline: none;
+            }
+
+        .validation-error {
+            border-color: #ef4444;
+        }
+
+        .date-input {
+            cursor: pointer;
+            padding-left: 40px !important;
+            text-align: center; /* راست چین کردن متن تاریخ */
+        }
+        /* وسط چین کردن تاریخ ثبت */
+        .registration-date {
+            text-align: center;
+        }
+        /* بهبود آیکون هدر */
+        .header-icon {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 12px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+        }
+
+            .header-icon i {
+                color: white;
+                font-size: 24px;
+            }
+
+        /* اضافه کردن فاصله بین هدر و فرم */
+        .form-container {
+            margin-top: 2rem;
+        }
+
+    </style>
+</head>
+
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
+    <div class="max-w-6xl mx-auto form-container">
+        <!-- اضافه کردن کلاس form-container -->
+        <form asp-action="Create" asp-controller="Shipment" method="post" class="space-y-6">
+            <div class="form-card">
+                <div class="form-header">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1 class="text-2xl md:text-3xl font-bold flex items-center">
+                                <i class="fas fa-ship ml-3"></i>
+                                ثبت اطلاعات کشتی
+                            </h1>
+                            <p class="mt-2 opacity-90 text-center">فرم زیر را برای ثبت اطلاعات کشتی جدید تکمیل کنید</p>
+                        </div>
+                        <div class="header-icon">
+                            <i class="fas fa-anchor text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                        <i class="fas fa-info-circle ml-2 text-blue-500"></i>
+                        اطلاعات اصلی
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-calendar-check ml-2 text-blue-400"></i>
+                                تاریخ ثبت
+                            </label>
+                            <div class="relative">
+                                <input value="@ConvertToPersianDate(DateTime.Now).Split('-')[0]"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed shadow-sm"
+                                       readonly
+                                       style="color: #4b5563;" />
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+                                    <i class="fas fa-lock"></i>
+                                </div>
+                            </div>
+                            <small class="text-gray-500">تاریخ ثبت به صورت خودکار تنظیم می‌شود</small>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label asp-for="ShipName" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-flag ml-2 text-blue-400"></i>
+                                نام کشتی
+                            </label>
+                            <div class="relative">
+                                <select asp-for="ShipName"
+                                        class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm appearance-none">
+                                    <option value="">-- انتخاب نام کشتی --</option>
+                                    @if (ViewBag.ShipNames != null)
+                                    {
+                                        foreach (var ship in ViewBag.ShipNames as SelectList)
+                                        {
+                                            <option value="@ship.Text">@ship.Text</option>
+                                        }
+                                    }
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                            </div>
+                            <span asp-validation-for="ShipName" class="text-red-500 text-xs"></span>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label asp-for="ShippingAgent" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-building ml-2 text-blue-400"></i>
+                                نماینده کشتیرانی
+                            </label>
+                            <div class="relative">
+                                <select asp-for="ShippingAgent"
+                                        class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm appearance-none"
+                                        asp-items="ViewBag.ShippingAgents">
+                                    <option value="">-- انتخاب نماینده کشتیرانی --</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                            </div>
+                            <span asp-validation-for="ShippingAgent" class="text-red-500 text-xs"></span>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label asp-for="ArrivalDateString" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-calendar-alt ml-2 text-blue-400"></i>
+                                تاریخ ورود به اسکله
+                            </label>
+                            <div class="datepicker-container relative">
+                                <input asp-for="ArrivalDateString" id="arrivalDate"
+                                       class="date-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                                       placeholder="امروز: @($"{new System.Globalization.PersianCalendar().GetYear(DateTime.Now)}/{new System.Globalization.PersianCalendar().GetMonth(DateTime.Now):00}/{new System.Globalization.PersianCalendar().GetDayOfMonth(DateTime.Now):00}")"
+                                       autocomplete="off" />
+                                <i class="fas fa-calendar-alt datepicker-icon"></i>
+                            </div>
+                            <span asp-validation-for="ArrivalDateString" class="text-red-500 text-xs"></span>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label asp-for="Dockworker" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-hard-hat ml-2 text-purple-400"></i>
+                                خنکار
+                            </label>
+                            <div class="relative">
+                                <select asp-for="Dockworker"
+                                        class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 shadow-sm"
+                                        asp-items="ViewBag.Dockworkers">
+                                    <option value="">-- انتخاب خنکار --</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                            </div>
+                            <span asp-validation-for="Dockworker" class="text-red-500 text-xs"></span>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-card">
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                        <i class="fas fa-boxes ml-2 text-green-500"></i>
+                        اطلاعات بار
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="space-y-2">
+                            <label asp-for="CargoWeight" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-weight-hanging ml-2 text-green-400"></i>
+                                وزن محموله
+                            </label>
+                            <input asp-for="CargoWeight" type="number" step="0.01" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 shadow-sm" />
+                            <span asp-validation-for="CargoWeight" class="text-red-500 text-xs"></span>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label asp-for="CargoType" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-tag ml-2 text-green-400"></i>
+                                نوع کالا
+                            </label>
+                            <div class="relative">
+                                <select asp-for="CargoType" class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 shadow-sm" asp-items="ViewBag.CargoTypes">
+                                    <option value="">-- انتخاب نوع کالا --</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                            </div>
+                            <span asp-validation-for="CargoType" class="text-red-500 text-xs"></span>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label asp-for="CargoOwner" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-user-tie ml-2 text-green-400"></i>
+                                صاحب کالا
+                            </label>
+                            <div class="relative">
+                                <select asp-for="CargoOwner" class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 shadow-sm">
+                                    <option value="">-- انتخاب صاحب کالا --</option>
+                                    @if (ViewBag.CargoOwners != null)
+                                    {
+                                        foreach (var owner in ViewBag.CargoOwners as SelectList)
+                                        {
+                                            <option value="@owner.Text">@owner.Text</option>
+                                        }
+                                    }
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                            </div>
+                            <span asp-validation-for="CargoOwner" class="text-red-500 text-xs"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- کارت اطلاعات مالی -->
+            <div class="bg-white rounded-xl shadow-lg p-6 border border-blue-100 mb-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-money-bill-wave ml-2 text-yellow-500"></i>
+                    اطلاعات مالی
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- فیلد تعرفه -->
+                    <div class="space-y-2">
+                        <label asp-for="Tariff" class="block text-sm font-medium text-gray-700 flex items-center">
+                            <i class="fas fa-file-invoice-dollar ml-2 text-yellow-400"></i>
+                            تعرفه
+                        </label>
+                        <input asp-for="Tariff" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 shadow-sm" />
+                        <span asp-validation-for="Tariff" class="text-red-500 text-xs"></span>
+                    </div>
+                    <!-- فیلد ارزش افزوده -->
+                    <div class="space-y-2">
+                        <label asp-for="AddedValue" class="block text-sm font-medium text-gray-700 flex items-center">
+                            <i class="fas fa-chart-line ml-2 text-yellow-400"></i>
+                            ارزش افزوده
+                        </label>
+                        <input asp-for="AddedValue" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 shadow-sm" />
+                        <span asp-validation-for="AddedValue" class="text-red-500 text-xs"></span>
+                    </div>
+
+                    <!-- فیلد مبلغ کل -->
+                    <div class="space-y-2">
+                        <label asp-for="TotalAmount" class="block text-sm font-medium text-gray-700 flex items-center">
+                            <i class="fas fa-calculator ml-2 text-yellow-400"></i>
+                            مبلغ کل
+                        </label>
+                        <input asp-for="TotalAmount" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 shadow-sm" />
+                        <span asp-validation-for="TotalAmount" class="text-red-500 text-xs"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-card">
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                        <i class="fas fa-credit-card ml-2 text-teal-500"></i>
+                        اطلاعات تسویه حساب
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="space-y-2">
+                            <label asp-for="PaymentMethod" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-money-check-alt ml-2 text-teal-400"></i>
+                                روش تسویه
+                            </label>
+                            <div class="relative">
+                                <select asp-for="PaymentMethod" id="paymentMethod" class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 shadow-sm">
+                                    <option value="">-- انتخاب روش تسویه --</option>
+                                    <option value="نقدی">نقدی</option>
+                                    <option value="فیش">فیش</option>
+                                    <option value="سایر">سایر</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                            </div>
+                            <span asp-validation-for="PaymentMethod" class="text-red-500 text-xs"></span>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label asp-for="EquivalentAmount" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-coins ml-2 text-teal-400"></i>
+                                مبلغ معادل (ریال)
+                            </label>
+                            <input asp-for="EquivalentAmount" type="number" step="1000" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 shadow-sm" placeholder="مبلغ را وارد کنید" />
+                            <span asp-validation-for="EquivalentAmount" class="text-red-500 text-xs"></span>
+                        </div>
+
+                        <div class="space-y-2" id="OtherPaymentMethodContainer" style="display: none;">
+                            <label asp-for="OtherPaymentMethod" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-comment-dots ml-2 text-teal-400"></i>
+                                توضیحات روش تسویه
+                            </label>
+                            <input asp-for="OtherPaymentMethod" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 shadow-sm" placeholder="روش تسویه را شرح دهید" />
+                            <span asp-validation-for="OtherPaymentMethod" class="text-red-500 text-xs"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-card">
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                        <i class="fas fa-truck-loading ml-2 text-purple-500"></i>
+                        اطلاعات تخلیه
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Existing unloading date fields -->
+                        <div class="space-y-2">
+                            <label asp-for="UnloadingStartDateString" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-play-circle ml-2 text-purple-400"></i>
+                                تاریخ شروع تخلیه
+                            </label>
+                            <div class="datepicker-container relative">
+                                <input asp-for="UnloadingStartDateString" id="unloadingStartDate"
+                                       class="date-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                                       placeholder="1404/01/01" autocomplete="off" />
+                                <div class="datepicker-icon">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                            </div>
+                            <span asp-validation-for="UnloadingStartDateString" class="text-red-500 text-xs"></span>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label asp-for="UnloadingCompletionDateString" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-check-circle ml-2 text-purple-400"></i>
+                                تاریخ اتمام تخلیه
+                            </label>
+                            <div class="datepicker-container relative">
+                                <input asp-for="UnloadingCompletionDateString" id="unloadingCompletionDate"
+                                       class="date-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                                       placeholder="1404/01/01" autocomplete="off" />
+                                <div class="datepicker-icon">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                            </div>
+                            <span asp-validation-for="UnloadingCompletionDateString" class="text-red-500 text-xs"></span>
+                        </div>
+                    </div>
+
+
+                    <!-- Existing Unloaded Amount field -->
+                    <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="space-y-2">
+                            <label for="UnloadedAmount" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-weight ml-2 text-purple-400"></i>
+                                میزان تخلیه شده (تن)
+                            </label>
+                            <div class="relative">
+                                <input type="number" step="0.01" min="0" id="UnloadedAmount" name="UnloadedAmount"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 shadow-sm"
+                                       placeholder="مقدار به تن وارد کنید" />
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500">تن</span>
+                                </div>
+                            </div>
+                            <span class="text-red-500 text-xs validation-message" id="unloadedAmountValidation"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-card">
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                        <i class="fas fa-list-alt ml-2 text-indigo-500"></i>
+                        سایر اطلاعات
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="space-y-2">
+                            <label asp-for="UnloadingPermitNumber" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-file-alt ml-2 text-indigo-400"></i>
+                                شماره مجوز تخلیه
+                            </label>
+                            <input asp-for="UnloadingPermitNumber" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm" />
+                            <span asp-validation-for="UnloadingPermitNumber" class="text-red-500 text-xs"></span>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label asp-for="VoyageNumber" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-route ml-2 text-indigo-400"></i>
+                                شماره سفر
+                            </label>
+                            <input asp-for="VoyageNumber" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm" />
+                            <span asp-validation-for="VoyageNumber" class="text-red-500 text-xs"></span>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label asp-for="DepartureDateString" class="block text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-calendar-times ml-2 text-indigo-400"></i>
+                                تاریخ خروج
+                            </label>
+                            <div class="datepicker-container relative">
+                                <input asp-for="DepartureDateString" id="departureDate"
+                                       class="date-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                                       placeholder="1404/01/01" autocomplete="off" />
+                                <div class="datepicker-icon">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                            </div>
+                            <span asp-validation-for="DepartureDateString" class="text-red-500 text-xs"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-center mt-8">
+                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-medium transition duration-200 flex items-center shadow-lg">
+                    <i class="fas fa-save ml-2"></i>
+                    ثبت اطلاعات
+                </button>
+            </div>
+        </form>
+    </div>
+
+    @section Scripts {
+        <script>
+            $(document).ready(function () {
+                // datepicker برای فیلدهای فقط تاریخ (بدون زمان)
+                $('#arrivalDate, #unloadingStartDate, #unloadingCompletionDate, #departureDate').each(function () {
+                    $(this).persianDatepicker({
+                        format: 'YYYY/MM/DD', // فقط تاریخ
+                        autoClose: true,
+                        initialValue: false,
+                        persianDigit: false,
+                        timePicker: {
+                            enabled: false // زمان غیرفعال
+                        },
+                        calendar: {
+                            persian: {
+                                locale: 'fa',
+                                showHint: true
+                            }
+                        }
+                    });
+                });
+
+                // همچنین می‌توانیم event listener مستقیم به آیکون اضافه کنیم
+                $('.datepicker-icon').on('click', function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+
+                    // پیدا کردن input مربوطه
+                    var inputId = $(this).closest('.datepicker-container').find('.date-input').attr('id');
+                    if (inputId) {
+                        $(`#${inputId}`).focus();
+                        $(`#${inputId}`).persianDatepicker('show');
+                    }
+                });
+
+                // نمایش/پنهان کردن فیلد توضیحات روش تسویه
+                $('#paymentMethod').change(function() {
+                    if ($(this).val() === 'سایر') {
+                        $('#OtherPaymentMethodContainer').show();
+                    } else {
+                        $('#OtherPaymentMethodContainer').hide();
+                    }
+                });
+
+                // مطمئن شویم که z-index کافی است
+                $('.pdatepicker-gui').css('z-index', '9999');
+            });
+        </script>
+
+    }
+
+</body>
+</html>

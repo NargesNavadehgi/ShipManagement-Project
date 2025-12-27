@@ -1,0 +1,220 @@
+﻿@model IEnumerable<ShipManagement.Models.CargoType>
+@{
+    Layout = "_BasicDataLayout";
+    ViewData["Title"] = "مدیریت انواع کالا";
+}
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Vazir, Tahoma, Arial, sans-serif;
+            direction: rtl;
+            background: linear-gradient(to bottom right, #f0f9ff, #e0f2fe);
+        }
+
+        .table-container {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+
+        .action-btn {
+            transition: all 0.2s ease-in-out;
+        }
+
+            .action-btn:hover {
+                transform: scale(1.05);
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+    </style>
+</head>
+
+<body>
+    <!-- محتوای اصلی صفحه -->
+    <div class="min-h-screen py-8 px-4">
+        <div class="max-w-6xl mx-auto">
+            <!-- نمایش پیام‌ها -->
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
+                    <span class="block sm:inline">@TempData["SuccessMessage"]</span>
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+                    <span class="block sm:inline">@TempData["ErrorMessage"]</span>
+                </div>
+            }
+
+            <!-- هدر صفحه -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8 border border-blue-100">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-800 flex items-center">
+                            <i class="fas fa-boxes ml-3 text-blue-500"></i>
+                            مدیریت انواع کالا
+                        </h1>
+                        <p class="text-gray-600 mt-2">لیست انواع کالای ثبت شده در سیستم</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <!-- دکمه افزودن نوع کالای جدید -->
+                        <a href="@Url.Action("CreateCargoType", "BasicData")" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-lg font-medium transition duration-200 flex items-center">
+                            <i class="fas fa-plus ml-2"></i>
+                            افزودن نوع کالای جدید
+                        </a>
+                        <div class="bg-blue-100 p-4 rounded-full">
+                            <i class="fas fa-boxes text-2xl text-blue-600"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- کارت جدول انواع کالا -->
+            <div class="bg-white rounded-xl shadow-lg p-6 border border-blue-100">
+                @if (Model != null && Model.Any())
+                {
+                    <div class="overflow-x-auto table-container">
+                        <table class="min-w-full bg-white">
+                            <thead class="bg-blue-500 text-white">
+                                <tr>
+                                    <th class="px-6 py-4 text-sm font-semibold uppercase tracking-wider">
+                                        <i class="fas fa-tag ml-2"></i>
+                                        نام نوع کالا
+                                    </th>
+                                    <th class="px-6 py-4 text-sm font-semibold uppercase tracking-wider">
+                                        <i class="fas fa-align-left ml-2"></i>
+                                        توضیحات
+                                    </th>
+                                    <th class="px-6 py-4 text-sm font-semibold uppercase tracking-wider">
+                                        <i class="fas fa-cog ml-2"></i>
+                                        عملیات
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                @foreach (var cargoType in Model)
+                                {
+                                    <tr class="hover:bg-blue-50 transition duration-150">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="bg-blue-100 p-2 rounded-full">
+                                                    <i class="fas fa-box text-blue-600"></i>
+                                                </div>
+                                                <div class="mr-3">
+                                                    <div class="text-sm font-medium text-gray-900">@cargoType.Name</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="text-sm text-gray-900">@(string.IsNullOrEmpty(cargoType.Description) ? "بدون توضیحات" : cargoType.Description)</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <div class="flex space-x-2 space-x-reverse">
+                                                <!-- لینک ویرایش -->
+                                                <a href="@Url.Action("EditCargoType", "BasicData", new { id = cargoType.Id })"
+                                                   class="text-blue-600 hover:text-blue-900 action-btn bg-blue-50 p-2 rounded-lg">
+                                                    <i class="fas fa-edit"></i>
+                                                    <span class="mr-1">ویرایش</span>
+                                                </a>
+                                                <!-- لینک حذف -->
+                                                <a href="@Url.Action("DeleteCargoType", "BasicData", new { id = cargoType.Id })"
+                                                   class="text-red-600 hover:text-red-900 action-btn bg-red-50 p-2 rounded-lg">
+                                                    <i class="fas fa-trash"></i>
+                                                    <span class="mr-1">حذف</span>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-12">
+                        <div class="bg-gray-100 p-8 rounded-xl">
+                            <i class="fas fa-box-open text-4xl text-gray-400 mb-4"></i>
+                            <h3 class="text-xl font-semibold text-gray-700">هیچ نوع کالایی ثبت نشده است</h3>
+                            <p class="text-gray-500 mt-2">برای شروع، اولین نوع کالا را اضافه کنید.</p>
+                            <a href="@Url.Action("CreateCargoType", "BasicData")" class="mt-4 inline-block bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition duration-200">
+                                <i class="fas fa-plus ml-2"></i>
+                                افزودن نوع کالا
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- کارت آمار -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                <div class="bg-white rounded-xl shadow-lg p-6 border border-blue-100">
+                    <div class="flex items-center">
+                        <div class="bg-blue-100 p-3 rounded-full">
+                            <i class="fas fa-boxes text-blue-600 text-xl"></i>
+                        </div>
+                        <div class="mr-3">
+                            <p class="text-sm font-medium text-gray-600">تعداد کل انواع کالا</p>
+                            <p class="text-2xl font-bold text-gray-900">@(Model?.Count() ?? 0)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 border border-green-100">
+                    <div class="flex items-center">
+                        <div class="bg-green-100 p-3 rounded-full">
+                            <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                        </div>
+                        <div class="mr-3">
+                            <p class="text-sm font-medium text-gray-600">انواع کالا فعال</p>
+                            <p class="text-2xl font-bold text-gray-900">@(Model?.Count(ct => ct.IsActive) ?? 0)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 border border-purple-100">
+                    <div class="flex items-center">
+                        <div class="bg-purple-100 p-3 rounded-full">
+                            <i class="fas fa-info-circle text-purple-600 text-xl"></i>
+                        </div>
+                        <div class="mr-3">
+                            <p class="text-sm font-medium text-gray-600">دارای توضیحات</p>
+                            <p class="text-2xl font-bold text-gray-900">@(Model?.Count(ct => !string.IsNullOrEmpty(ct.Description)) ?? 0)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // اضافه کردن effect hover به ردیف‌های جدول
+            $('tr').hover(
+                function() {
+                    $(this).css('transform', 'translateX(-4px)');
+                },
+                function() {
+                    $(this).css('transform', 'translateX(0)');
+                }
+            );
+
+            // حذف خودکار پیام‌ها بعد از 5 ثانیه
+            setTimeout(function() {
+                $('.bg-green-100, .bg-red-100').fadeOut(500);
+            }, 5000);
+        });
+    </script>
+</body>
+</html>
